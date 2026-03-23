@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Blog Minimaliste</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <h1>Mon Blog Épuré</h1>
+            <nav>
+                <a href="/api-docs" class="btn-outline">Documentation API</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="add-article-section">
+            <h2>Nouveau Post</h2>
+            <form id="add-article-form" class="clean-form">
+                <input type="text" id="titre" placeholder="Titre de l'article" required>
+                <input type="text" id="auteur" placeholder="Auteur" required>
+                <input type="text" id="categorie" placeholder="Catégorie (optionnel)">
+                <textarea id="contenu" placeholder="Écrivez votre contenu ici..." required></textarea>
+                <input type="text" id="tags" placeholder="Tags séparés par des virgules (ex: web, design)">
+                <button type="submit" class="btn-primary">Publier</button>
+            </form>
+        </section>
+
+        <section class="articles-list-section">
+            <h2>Derniers Articles</h2>
+            <div id="articles-container" class="articles-grid">
+                <!-- Les articles seront injectés ici par app.js -->
+                <p class="loading">Chargement des articles...</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: API Blog Débutant
+  version: 1.0.0
+  description: Une API simple pour gérer un blog (créer, lire, modifier, supprimer des articles). Idéal pour débuter avec Node.js, Express et SQLite.
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/articles:
+    get:
+      summary: Récupérer tous les articles
+      description: Retourne la liste complète des articles. Possibilité de filtrer par catégorie et date.
+      parameters:
+        - in: query
+          name: categorie
+          schema:
+            type: string
+          description: Filtrer par catégorie (ex. Technologie)
+        - in: query
+          name: date
+          schema:
+            type: string
+          description: Filtrer par date (ex. 2026-03-18)
+      responses:
+        '200':
+          description: Un objet contenant un tableau d'articles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+        '500':
+          description: Erreur serveur
+    
+    post:
+      summary: Créer un nouvel article
+      description: Ajoute un article à la base de données.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '201':
+          description: Article créé avec succès
+        '400':
+          description: Requête mal formée (champs manquants)
+        '500':
+          description: Erreur serveur
+
+  /api/articles/search:
+    get:
+      summary: Rechercher un article
+      description: Recherche un texte spécifique dans le titre ou le contenu des articles.
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+          description: Le texte à rechercher
+      responses:
+        '200':
+          description: Un tableau d'articles correspondant à la recherche
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '400':
+          description: Paramètre manquant
+        '500':
+          description: Erreur serveur
+
+  /api/articles/{id}:
+    get:
+      summary: Récupérer un article unique
+      description: Retourne les détails d'un article spécifique par son ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: L'ID de l'article
+      responses:
+        '200':
+          description: L'article trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          description: Article non trouvé
+        '500':
+          description: Erreur serveur
+
+    put:
+      summary: Modifier un article
+      description: Met à jour les informations d'un article existant.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: L'ID de l'article à modifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdate'
+      responses:
+        '200':
+          description: Article mis à jour
+        '404':
+          description: Article non trouvé
+        '500':
+          description: Erreur serveur
+
+    delete:
+      summary: Supprimer un article
+      description: Supprime un article existant via son ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Confirmation de suppression
+        '404':
+          description: Article non trouvé
+        '500':
+          description: Erreur serveur
+
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+        titre:
+          type: string
+        contenu:
+          type: string
+        auteur:
+          type: string
+        date:
+          type: string
+        categorie:
+          type: string
+        tags:
+          type: string
+          
+    ArticleInput:
+      type: object
+      required:
+        - titre
+        - contenu
+        - auteur
+        - date
+      properties:
+        titre:
+          type: string
+          example: "Introduction au Web"
+        contenu:
+          type: string
+          example: "Le web est un vaste réseau où tous les ordinateurs peuvent communiquer..."
+        auteur:
+          type: string
+          example: "Charles"
+        date:
+          type: string
+          example: "2026-03-18"
+        categorie:
+          type: string
+          example: "Technologie"
+        tags:
+          type: string
+          example: "web, intro, html"
+
+    ArticleUpdate:
+      type: object
+      properties:
+        titre:
+          type: string
+          example: "Titre mis à jour"
+        contenu:
+          type: string
+          example: "Nouveau contenu..."
+        categorie:
+          type: string
+          example: "Nouvelle catégorie"
+        tags:
+          type: string
+          example: "tag1, tag2"
