@@ -46,18 +46,4 @@ Swagger liste tous les "Endpoints" (*routes*) disponibles :
 
 Vous pouvez cliquer sur n'importe quelle route, puis sur **"Try it out"** pour tester vous-même l'envoi de requêtes !
 
-## 5. Comment Déployer (Mettre en ligne)
 
-Pour que votre API soit accessible sur Internet (par exemple via Render ou Railway), suivez ces étapes :
-
-1. Créez un dossier distant (nouveau *Repository* vide) sur **GitHub**.
-2. Dans votre terminal (dans ce dossier de l'API), tapez les commandes suivantes pour lier et envoyer votre code (remplacez l'URL par la vôtre) :
-   ```bash
-   git add .
-   git commit -m "Mon Blog API"
-   git remote add origin https://github.com/VOTRE_PSEUDO/VOTRE_DEPOT.git
-   git push -u origin main
-   ```
-3. Allez sur [Render.com](https://render.com) ou [Railway.app](https://railway.app).
-4. Créez un nouveau "Web Service" et connectez simplement votre dépôt GitHub !
-5. Ces plateformes détecteront automatiquement que c'est une application Node.js (grâce au `package.json`). Assurez-vous simplement que la commande de démarrage (`Start Command`) est bien `node app.js`.
