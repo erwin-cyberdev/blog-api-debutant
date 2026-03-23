@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const newArticle = {
             titre: document.getElementById('titre').value,
             auteur: document.getElementById('auteur').value,
+            date: document.getElementById('date').value,
             categorie: document.getElementById('categorie').value,
             contenu: document.getElementById('contenu').value,
-            tags: document.getElementById('tags').value,
-            date: new Date().toISOString().split('T')[0]
+            tags: document.getElementById('tags').value
         };
 
         try {

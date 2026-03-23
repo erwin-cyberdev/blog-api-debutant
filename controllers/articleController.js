@@ -22,19 +22,27 @@ const articleController = {
         });
     },
 
-    // Récupérer tous les articles, ou filtrer (GET /api/articles)
+    // Récupérer tous les articles, ou filtrer (GET /api/articles) avec pagination
     getAllArticles: (req, res) => {
         const filters = {
             categorie: req.query.categorie,
             date: req.query.date
         };
+        
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
 
-        Article.getAll(filters, (err, articles) => {
+        Article.getAll(filters, limit, offset, (err, articles) => {
             if (err) {
                 return res.status(500).json({ erreur: "Erreur serveur lors de la récupération des articles." });
             }
-            // Retourner sous le format attendu: { "articles": [...] }
-            res.status(200).json({ articles: articles });
+            res.status(200).json({ 
+                articles: articles,
+                page: page,
+                limit: limit,
+                total: articles.length // info basique
+            });
         });
     },
 
@@ -53,12 +61,23 @@ const articleController = {
         });
     },
 
-    // Mettre à jour un article (PUT /api/articles/:id)
+    // Mettre à jour un article partiellement (PUT/PATCH /api/articles/:id)
     updateArticle: (req, res) => {
         const id = req.params.id;
-        const { titre, contenu, categorie, tags } = req.body;
+        
+        // Seules les clés présentes dans la requête seront conservées
+        const updatedArticle = {};
+        const fields = ['titre', 'contenu', 'auteur', 'date', 'categorie', 'tags'];
+        
+        fields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                updatedArticle[field] = req.body[field];
+            }
+        });
 
-        const updatedArticle = { titre, contenu, categorie, tags };
+        if (Object.keys(updatedArticle).length === 0) {
+            return res.status(400).json({ erreur: "Aucune donnée fournie pour la mise à jour." });
+        }
 
         Article.update(id, updatedArticle, (err, changes) => {
             if (err) {

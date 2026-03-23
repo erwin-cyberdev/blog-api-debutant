@@ -18,8 +18,8 @@ const ArticleModel = {
         });
     },
 
-    // Récupérer tous les articles avec possibilité de filtrer par catégorie et date
-    getAll: (filters, callback) => {
+    // Récupérer tous les articles avec possibilité de filtrer par catégorie et date, avec pagination
+    getAll: (filters, limit, offset, callback) => {
         let sql = `SELECT * FROM articles`;
         let params = [];
         let conditions = [];
@@ -36,6 +36,13 @@ const ArticleModel = {
         if (conditions.length > 0) {
             sql += ` WHERE ` + conditions.join(' AND ');
         }
+        
+        sql += ` ORDER BY date DESC`;
+
+        if (limit !== undefined && offset !== undefined) {
+            sql += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
 
         db.all(sql, params, (err, rows) => {
             callback(err, rows);
@@ -50,18 +57,26 @@ const ArticleModel = {
         });
     },
 
-    // Mettre à jour un article existant
+    // Mettre à jour un article existant (mise à jour partielle supportée)
     update: (id, article, callback) => {
-        const sql = `UPDATE articles 
-                     SET titre = ?, contenu = ?, categorie = ?, tags = ?
-                     WHERE id = ?`;
-        db.run(sql, [
-            article.titre,
-            article.contenu,
-            article.categorie,
-            article.tags,
-            id
-        ], function(err) {
+        let fields = [];
+        let params = [];
+
+        if (article.titre !== undefined) { fields.push('titre = ?'); params.push(article.titre); }
+        if (article.contenu !== undefined) { fields.push('contenu = ?'); params.push(article.contenu); }
+        if (article.auteur !== undefined) { fields.push('auteur = ?'); params.push(article.auteur); }
+        if (article.date !== undefined) { fields.push('date = ?'); params.push(article.date); }
+        if (article.categorie !== undefined) { fields.push('categorie = ?'); params.push(article.categorie); }
+        if (article.tags !== undefined) { fields.push('tags = ?'); params.push(article.tags); }
+
+        if (fields.length === 0) {
+            return callback(null, 0); // Rien à mettre à jour
+        }
+
+        const sql = `UPDATE articles SET ${fields.join(', ')} WHERE id = ?`;
+        params.push(id);
+
+        db.run(sql, params, function(err) {
             // this.changes contient le nombre de lignes modifiées
             callback(err, this ? this.changes : 0);
         });
@@ -75,12 +90,12 @@ const ArticleModel = {
         });
     },
 
-    // Rechercher un mot-clé dans le titre ou le contenu
+    // Rechercher un mot-clé dans le titre, le contenu ou les tags
     search: (query, callback) => {
         const sql = `SELECT * FROM articles 
-                     WHERE titre LIKE ? OR contenu LIKE ?`;
+                     WHERE titre LIKE ? OR contenu LIKE ? OR tags LIKE ?`;
         const searchQuery = `%${query}%`;
-        db.all(sql, [searchQuery, searchQuery], (err, rows) => {
+        db.all(sql, [searchQuery, searchQuery, searchQuery], (err, rows) => {
             callback(err, rows);
         });
     }
